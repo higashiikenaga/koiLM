@@ -1,0 +1,25 @@
+{
+  "name": "koilm-windows",
+  "version": "0.1.0",
+  "description": "koiLM Windows版(Electron) - ローカルLLMチャット + キャラ立ち絵自動生成",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.koilm.windows",
+    "productName": "koiLM",
+    "win": {
+      "target": "portable"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ]
+  }
+}

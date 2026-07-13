@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        重要: INTERNET権限を意図的に付与しない。
+        サーバー通信を一切行わない完全ローカル動作の構成であることを保証するため、
+        依存ライブラリが自動でINTERNET権限をマージしてきた場合は明示的に除去する。
+    -->
+    <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
+
+    <!-- モデルファイル(.gguf)を端末ストレージから読み込むための権限 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!-- キャラからの自発的な話しかけをLocal Notificationで表示するための権限(API33+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:allowBackup="false"
+        android:label="koiLM"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@style/Theme.KoiLM"
+        android:usesCleartextTraffic="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

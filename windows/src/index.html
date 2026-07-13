@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>koiLM (Windows)</title>
+<style>
+  body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; }
+  #onboarding { display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    padding: 32px; max-width: 480px; margin: 0 auto; }
+  #onboarding button { display: block; width: 100%; padding: 8px; margin-bottom: 8px; }
+  #sidebar { width: 260px; border-right: 1px solid #ccc; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; }
+  #main { flex: 1; display: flex; flex-direction: column; padding: 12px; }
+  #log { flex: 1; overflow-y: auto; border: 1px solid #ccc; padding: 8px; margin-bottom: 8px; white-space: pre-wrap; }
+  .char-item { padding: 8px; border-radius: 6px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .char-item:hover { background: #eee; }
+  .char-item button { font-size: 11px; }
+  .bubble { max-width: 70%; padding: 8px; border-radius: 8px; margin-bottom: 2px; }
+  .bubble.user { align-self: flex-end; background: #dbeafe; }
+  .bubble.assistant { align-self: flex-start; background: #f3f4f6; }
+  .read-label { font-size: 11px; color: #888; align-self: flex-end; margin-bottom: 6px; }
+  #settingsPanel { border-top: 1px solid #ccc; margin-top: 8px; padding-top: 8px; font-size: 13px; }
+  #settingsPanel label { display: block; margin-bottom: 4px; }
+  #settingsPanel input[type="number"] { width: 40px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+  <div id="onboarding" class="hidden">
+    <div id="languageSection">
+      <p>Language / 言語</p>
+      <button data-lang="ja">日本語</button>
+      <button data-lang="en">English</button>
+    </div>
+    <div id="ageGateSection" class="hidden">
+      <h2 data-i18n="welcome">ようこそ</h2>
+      <p data-i18n="ageQuestion">年齢確認: 18歳以上ですか?</p>
+      <button id="ageYesBtn" data-i18n="ageYes">18歳以上です</button>
+      <button id="ageNoBtn" data-i18n="ageNo">18歳未満です</button>
+    </div>
+    <div id="romanticTargetSection" class="hidden">
+      <p data-i18n="romanticTargetQuestion">恋愛対象を選んでください</p>
+      <button data-target="MALE" data-i18n="targetMale">男性が好き</button>
+      <button data-target="FEMALE" data-i18n="targetFemale">女性が好き</button>
+      <button data-target="BOTH" data-i18n="targetBoth">どちらも</button>
+    </div>
+  </div>
+
+  <div id="appRoot" class="hidden" style="display: none;">
+    <div id="sidebar">
+      <h3 data-i18n="characters">キャラクター</h3>
+      <div id="charList" style="flex: 1; overflow-y: auto;"></div>
+      <button id="newCharBtn" data-i18n="newCharacter">+ 新規作成</button>
+      <button id="settingsBtn" data-i18n="settingsBtn">⚙ 設定</button>
+      <div id="settingsPanel" class="hidden">
+        <label><span data-i18n="languageLabel">言語:</span>
+          <select id="languageSelect">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+        <label id="modelSizeRow"><span data-i18n="modelSizeLabel">モデルの品質:</span>
+          <select id="modelSizeSelect">
+            <option value="1b" data-i18n="modelSize1b">軽量・高速(1B)</option>
+            <option value="7b" data-i18n="modelSize7b">高品質・低速(7B)</option>
+          </select>
+        </label>
+        <label><span data-i18n="contentLevelLabel">表現レベル:</span>
+          <select id="contentLevelSelect">
+            <option value="NORMAL" data-i18n="levelNormal">通常表現</option>
+            <option value="SFW" data-i18n="levelSfw">SFW</option>
+            <option value="NSFW" data-i18n="levelNsfw">NSFW(18歳以上)</option>
+          </select>
+        </label>
+        <label><input type="checkbox" id="affectionToggle" /> <span data-i18n="affectionToggle">好感度システム(既読・返信間隔)</span></label>
+        <label><span data-i18n="busyHoursLabel">仕事中(既読が付かない時間帯):</span>
+          <input type="number" id="busyStart" min="0" max="23" /> <span data-i18n="oclock1">時</span> 〜
+          <input type="number" id="busyEnd" min="0" max="23" /> <span data-i18n="oclock2">時</span>
+        </label>
+        <button id="saveBusyHoursBtn" data-i18n="save">保存</button>
+        <label><span data-i18n="replyModeLabel">返信モード:</span>
+          <select id="replyModeSelect">
+            <option value="IMMEDIATE" data-i18n="replyImmediate">即返信</option>
+            <option value="TIMED" data-i18n="replyTimed">タイミング(最大15分以内)</option>
+          </select>
+        </label>
+        <div style="margin-top: 12px; font-size: 12px; color: #666;" data-i18n="licenses">
+          <strong>使用モデル・ライセンス</strong><br />
+          本アプリのキャラクターの発言・立ち絵はすべてAIによって生成されたものです。<br /><br />
+          ・対話モデル: sarashina2.2-1b-instruct-v0.1 by SB Intuitions (MIT License)
+          をベースに独自LoRAでファインチューニング<br />
+          ・画像生成モデル: Animagine XL 4.0 by cagliostrolab (CreativeML Open RAIL++-M License)<br />
+          &nbsp;&nbsp;違法行為、未成年者の搾取、なりすまし(同意のない/実在人物の模倣)、
+          誹謗中傷、差別・扇動目的の利用は禁止されています。本アプリの利用者もこれらの
+          利用制限に従う必要があります。<br />
+          ・画像生成ランタイム: stable-diffusion.cpp (MIT License)
+        </div>
+      </div>
+    </div>
+    <div id="main">
+      <div id="log" style="display: flex; flex-direction: column;"></div>
+      <div style="display:flex; gap:8px;">
+        <input id="msgInput" style="flex:1;" data-i18n-placeholder="msgPlaceholder" placeholder="メッセージを入力" />
+        <button id="sendBtn" data-i18n="send">送信</button>
+      </div>
+    </div>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>

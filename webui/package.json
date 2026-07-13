@@ -1,0 +1,12 @@
+{
+  "name": "koilm-webui",
+  "version": "0.1.0",
+  "description": "koiLM WebUI版 - PCで起動し、同じWi-Fi内のスマホ等のブラウザからもアクセスできるチャットサーバー",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

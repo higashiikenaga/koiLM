@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# 学習の入出力(サイズが大きい・再現可能なため)
+output/
+models/
+
+# 外部ツール(README記載の手順で別途クローン)
+tools/
+
+# 配布用ビルド成果物(GitHub Releases / Hugging Face で別途配布)
+dist/
+
+# Node.js
+node_modules/
+windows/bin/
+windows/models/
+windows/dist/
+webui/bin/
+webui/models/
+
+# Android
+android/**/build/
+android/**/.cxx/
+android/**/.gradle/
+android/local.properties
+android/app/src/main/cpp/llama.cpp/
+android/keystore.properties
+
+# エディタ・ローカル設定
+.claude/
+.vscode/
+*.log

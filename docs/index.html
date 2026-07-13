@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>koiLM</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0; line-height: 1.7; color: #222; background: #fff;
+  }
+  header { padding: 64px 20px 32px; text-align: center; background: linear-gradient(135deg, #ffe4ec, #e4f0ff); }
+  header h1 { font-size: 2.4em; margin: 0 0 8px; }
+  header p { font-size: 1.1em; color: #555; }
+  main { max-width: 720px; margin: 0 auto; padding: 32px 20px; }
+  .cta { text-align: center; margin: 32px 0; }
+  .cta a {
+    display: inline-block; padding: 14px 32px; margin: 6px; border-radius: 8px;
+    background: #ff6f91; color: white; text-decoration: none; font-weight: bold;
+  }
+  .cta a.secondary { background: #4a7bd0; }
+  h2 { border-bottom: 2px solid #eee; padding-bottom: 6px; margin-top: 48px; }
+  ul { padding-left: 20px; }
+  footer { text-align: center; padding: 32px; color: #888; font-size: 0.9em; }
+  code { background: #f3f3f3; padding: 2px 6px; border-radius: 4px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #16161a; color: #eee; }
+    header { background: linear-gradient(135deg, #3a2233, #1e2a3a); }
+    header p { color: #bbb; }
+    h2 { border-color: #333; }
+    code { background: #2a2a2e; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>koiLM</h1>
+    <p>完全ローカル動作の恋愛・会話AIアプリ<br>外部通信なし、あなたの端末だけで動きます</p>
+  </header>
+  <main>
+    <div class="cta">
+      <a href="https://github.com/higashiikenaga/koiLM/releases">ダウンロード (Releases)</a>
+      <a class="secondary" href="https://github.com/higashiikenaga/koiLM">GitHub</a>
+    </div>
+
+    <h2>特徴</h2>
+    <ul>
+      <li>完全ローカルで動作するローカルLLM搭載の恋愛チャットアプリ(通信なし・プライバシー安心)</li>
+      <li>Windows版(ポータブルexe)とWebUI版(PCで起動し、同じWi-Fi内のスマホからも遊べます)</li>
+      <li>日本語 / English 切り替え対応(言語ごとに専用モデルを使用)</li>
+      <li>好感度システム(既読タイミング・返信間隔の演出)</li>
+      <li>キャラクター作成時の1枚絵自動生成</li>
+      <li>年齢確認・表現レベル設定(通常表現 / SFW / NSFW)</li>
+    </ul>
+
+    <h2>導入方法</h2>
+    <ol>
+      <li><a href="https://github.com/higashiikenaga/koiLM/releases">Releases</a> から、お使いの環境に合ったパッケージをダウンロード</li>
+      <li>展開したフォルダの構成に沿って、モデルファイルを <code>models/</code> に配置</li>
+      <li>Windows版は <code>koiLM.exe</code> をダブルクリック、WebUI版は <code>npm start</code> で起動</li>
+      <li>WebUI版はスマホから <code>http://(PCのIPアドレス):3939</code> にアクセスすると同じWi-Fi内から遊べます</li>
+    </ol>
+
+    <h2>高品質モデル(7B)について</h2>
+    <p>
+      デフォルトの軽量モデルに加えて、より高品質な7Bクラスのモデルも利用できます。
+      ファイルサイズが大きいため、Hugging Faceで別途配布しています。詳細は
+      <a href="https://github.com/higashiikenaga/koiLM#ダウンロード">READMEのダウンロード欄</a>を参照してください。
+    </p>
+
+    <h2>ライセンス・利用上の注意</h2>
+    <p>
+      本アプリの発言・立ち絵はすべてAIによって生成されたものです。使用モデルの詳細・ライセンスは
+      <a href="https://github.com/higashiikenaga/koiLM#使用モデルライセンス">GitHubリポジトリ</a>を参照してください。
+      違法行為・未成年者の搾取・なりすまし・誹謗中傷・差別扇動目的での利用は禁止します。
+    </p>
+  </main>
+  <footer>koiLM &middot; <a href="https://github.com/higashiikenaga/koiLM">github.com/higashiikenaga/koiLM</a></footer>
+</body>
+</html>
