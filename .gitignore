@@ -28,6 +28,8 @@ android/**/.gradle/
 android/local.properties
 android/app/src/main/cpp/llama.cpp/
 android/keystore.properties
+android/*.keystore
+android/**/*.jks
 
 # エディタ・ローカル設定
 .claude/

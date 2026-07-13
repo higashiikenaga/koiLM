@@ -1,28 +1,31 @@
 # koiLM — 恋愛・会話特化型SLM ローカルLoRA学習 & 完全ローカルアプリ
 
-完全ローカル動作(外部通信一切なし)の恋愛・会話AIアプリです。Windows版(Electron)と
-WebUI版(同一Wi-Fi内のスマホ等からもアクセス可)を配布しています。
+完全ローカル動作(外部通信一切なし)の恋愛・会話AIアプリです。
+**現在の配布対象は Windows版(Electron) と WebUI版(PCで起動し、同じWi-Fi内のスマホ等からもアクセス可)です。**
+(`android/` は開発初期のプロトタイプで、モバイル端末のRAM制約が大きいため現在は配布対象外・参考実装として残しています)
 
 ## ダウンロード
 
-- **アプリ本体・軽量モデル(1B/Qwen2.5-1.5B)・画像生成モデル**: [Releases](https://github.com/higashiikenaga/koiLM/releases) から取得してください。
-- **高品質7Bモデル(任意)**: ファイルサイズが大きいため(4GB超)、Hugging Face で別途配布しています。
+- **アプリ本体・軽量モデル(1B/Qwen2.5-1.5B)・推論エンジン(llama-server.exe)**: [Releases](https://github.com/higashiikenaga/koiLM/releases) から取得してください(`SETUP.txt`に配置方法を記載)。
+- **高品質7Bモデル(任意)**: ファイルサイズが大きいため(4GB超)、[Hugging Face](https://huggingface.co/kk0518/koiLM-7b-gguf) で別途配布しています。
   導入すると設定画面から「高品質・低速(7B)」を選べるようになります。
-- 導入方法・言語切替(日本語/English)・各種設定については [紹介ページ](https://higashiikenaga.github.io/koiLM/) を参照してください。
+- WebUI版はGitHubリポジトリを取得し、`webui/` フォルダで `npm install && npm start`(モデル配置は上記と同様)。
+- 導入方法・言語切替(日本語/English)については [紹介ページ](https://higashiikenaga.github.io/koiLM/) を参照してください。
+- 画像生成(キャラクター1枚絵の自動生成)は現在準備中で、まだ配布パッケージには含まれていません。
 
 ## 使用モデル・ライセンス
 
-- 対話モデル(日本語): [sarashina2.2-1b-instruct-v0.1](https://huggingface.co/sbintuitions/sarashina2.2-1b-instruct-v0.1) (MIT) をベースに独自LoRAでファインチューニング
-- 対話モデル(日本語・高品質版): [Ninja-v1-RP-expressive-v2](https://huggingface.co/Aratako/Ninja-v1-RP-expressive-v2) ベースに同上LoRA
+- 対話モデル(日本語・軽量): [sarashina2.2-1b-instruct-v0.1](https://huggingface.co/sbintuitions/sarashina2.2-1b-instruct-v0.1) (MIT) をベースに独自LoRAでファインチューニング
+- 対話モデル(日本語・高品質版、任意): [Ninja-v1-RP-expressive-v2](https://huggingface.co/Aratako/Ninja-v1-RP-expressive-v2) ベースに同上LoRA
 - 対話モデル(English): [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) (Apache-2.0)
-- 画像生成モデル: [Animagine XL 4.0](https://huggingface.co/cagliostrolab/animagine-xl-4.0) (CreativeML Open RAIL++-M)
+- 画像生成モデル(準備中): [Animagine XL 4.0](https://huggingface.co/cagliostrolab/animagine-xl-4.0) (CreativeML Open RAIL++-M) を予定
 - 推論ランタイム: [llama.cpp](https://github.com/ggml-org/llama.cpp) / [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) (MIT)
 
 違法行為・未成年者の搾取・なりすまし・誹謗中傷・差別扇動目的での利用は禁止します。
 
 ---
 
-## 開発メモ(以下、学習パイプラインの技術詳細)
+## 開発メモ(以下、学習パイプライン・旧Androidプロトタイプの技術詳細。現行配布物とは対象が異なります)
 
 ## 1. リサーチ結果: ベースモデル候補
 
