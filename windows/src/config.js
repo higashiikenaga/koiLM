@@ -31,8 +31,9 @@ module.exports = {
   sdExe: process.env.KOILM_SD_EXE || path.join(baseDir, "bin", "sd", "sd-cli.exe"),
   // Animagine XL 4.0 (SDXLベース、アニメ調)。CLIPテキストエンコーダーはGGUF内に同梱されており
   // Z-Image-Turbo系と違いVAE/テキストエンコーダーを別途指定する必要がない。
+  // GGUF量子化版: https://huggingface.co/dummy9996/animagine-xl-4.0-gguf (Q4_K_M, 約1.63GB)
   sdModelPath:
-    process.env.KOILM_SD_MODEL_PATH || path.join(baseDir, "models", "animagine-xl-4.0-Q4_K.gguf"),
+    process.env.KOILM_SD_MODEL_PATH || path.join(baseDir, "models", "animagine-xl-4.0-Q4_K_M.gguf"),
   llamaServerPort: 8734,
 
   /**

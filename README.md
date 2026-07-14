@@ -18,7 +18,8 @@
 - 対話モデル(日本語・軽量): [sarashina2.2-1b-instruct-v0.1](https://huggingface.co/sbintuitions/sarashina2.2-1b-instruct-v0.1) (MIT) をベースに独自LoRAでファインチューニング
 - 対話モデル(日本語・高品質版、任意): [Ninja-v1-RP-expressive-v2](https://huggingface.co/Aratako/Ninja-v1-RP-expressive-v2) ベースに同上LoRA
 - 対話モデル(English): [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) (Apache-2.0)
-- 画像生成モデル(任意): [Animagine XL 4.0](https://huggingface.co/cagliostrolab/animagine-xl-4.0) (CreativeML Open RAIL++-M)
+- 画像生成モデル(任意): [Animagine XL 4.0](https://huggingface.co/cagliostrolab/animagine-xl-4.0) (CreativeML Open RAIL++-M)。
+  GGUF量子化版は [dummy9996/animagine-xl-4.0-gguf](https://huggingface.co/dummy9996/animagine-xl-4.0-gguf) (Q4_K_M推奨) から取得
 - 推論ランタイム: [llama.cpp](https://github.com/ggml-org/llama.cpp) / [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) (MIT)
 
 違法行為・未成年者の搾取・なりすまし・誹謗中傷・差別扇動目的での利用は禁止します。

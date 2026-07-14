@@ -19,8 +19,9 @@ module.exports = {
   // bin/sd/ という別サブフォルダに配置する想定(Windowsは実行ファイル自身のフォルダを
   // 最優先でDLL探索するため、フォルダを分ければ同名dllが共存できる)。
   sdExe: process.env.KOILM_SD_EXE || path.join(baseDir, "bin", "sd", "sd-cli.exe"),
+  // GGUF量子化版: https://huggingface.co/dummy9996/animagine-xl-4.0-gguf (Q4_K_M, 約1.63GB)
   sdModelPath:
-    process.env.KOILM_SD_MODEL_PATH || path.join(baseDir, "models", "animagine-xl-4.0-Q4_K.gguf"),
+    process.env.KOILM_SD_MODEL_PATH || path.join(baseDir, "models", "animagine-xl-4.0-Q4_K_M.gguf"),
   llamaServerPort: 8734,
   webPort: Number(process.env.KOILM_WEB_PORT || 3939),
   pin: process.env.KOILM_PIN || null,

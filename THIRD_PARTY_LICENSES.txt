@@ -164,6 +164,7 @@ https://www.khronos.org/vulkan/
 - Ninja-v1-RP-expressive-v2 ベースの独自LoRA(任意・高品質7Bモデル)
 - Animagine XL 4.0 (CreativeML Open RAIL++-M、任意・画像生成用)
   https://huggingface.co/cagliostrolab/animagine-xl-4.0
+  GGUF量子化版: https://huggingface.co/dummy9996/animagine-xl-4.0-gguf (Q4_K_M推奨)
   違法行為・未成年者の搾取・なりすまし・誹謗中傷・差別扇動目的の利用は
   ライセンス上禁止されています。
 
