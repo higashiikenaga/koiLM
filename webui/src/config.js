@@ -15,7 +15,10 @@ module.exports = {
     process.env.KOILM_MODEL_PATH_JA_7B || path.join(baseDir, "models", "koilm-7b.gguf"),
   modelPathEn:
     process.env.KOILM_MODEL_PATH_EN || path.join(baseDir, "models", "qwen2.5-1.5b-instruct.gguf"),
-  sdExe: process.env.KOILM_SD_EXE || path.join(baseDir, "bin", "sd.exe"),
+  // llama-server.exeとはggml*.dllのビルド(バージョン)が異なるため、DLL衝突を避けて
+  // bin/sd/ という別サブフォルダに配置する想定(Windowsは実行ファイル自身のフォルダを
+  // 最優先でDLL探索するため、フォルダを分ければ同名dllが共存できる)。
+  sdExe: process.env.KOILM_SD_EXE || path.join(baseDir, "bin", "sd", "sd-cli.exe"),
   sdModelPath:
     process.env.KOILM_SD_MODEL_PATH || path.join(baseDir, "models", "animagine-xl-4.0-Q4_K.gguf"),
   llamaServerPort: 8734,
