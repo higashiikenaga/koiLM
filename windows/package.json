@@ -1,6 +1,6 @@
 {
   "name": "koilm-windows",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "koiLM Windows版(Electron) - ローカルLLMチャット + キャラ立ち絵自動生成",
   "main": "src/main.js",
   "scripts": {
