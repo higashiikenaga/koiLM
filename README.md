@@ -18,15 +18,22 @@
 - 対話モデル(日本語・軽量): [sarashina2.2-1b-instruct-v0.1](https://huggingface.co/sbintuitions/sarashina2.2-1b-instruct-v0.1) (MIT) をベースに独自LoRAでファインチューニング
 - 対話モデル(日本語・高品質版、任意): [Ninja-v1-RP-expressive-v2](https://huggingface.co/Aratako/Ninja-v1-RP-expressive-v2) ベースに同上LoRA
 - 対話モデル(English): [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) (Apache-2.0)
-- 画像生成モデル(準備中): [Animagine XL 4.0](https://huggingface.co/cagliostrolab/animagine-xl-4.0) (CreativeML Open RAIL++-M) を予定
+- 画像生成モデル(任意): [Animagine XL 4.0](https://huggingface.co/cagliostrolab/animagine-xl-4.0) (CreativeML Open RAIL++-M)
 - 推論ランタイム: [llama.cpp](https://github.com/ggml-org/llama.cpp) / [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) (MIT)
 
 違法行為・未成年者の搾取・なりすまし・誹謗中傷・差別扇動目的での利用は禁止します。
+
+同梱している各ソフトウェア(Electron、llama.cpp/ggml、stable-diffusion.cpp、
+libwebp、LLVM OpenMPランタイム等)の詳細なライセンス表記は
+[THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt) を参照してください。
 
 ## ライセンス
 
 本リポジトリのコードは [MITライセンス](LICENSE) です。改造・再配布は自由ですが、
 著作権表示とライセンス文の記載をお願いします。
+
+配布パッケージに同梱している第三者ソフトウェアのライセンスについては
+[THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt) を参照してください。
 
 もし良い改造ができたら、ぜひ教えてください。気に入ったものは公式版に取り込むかもしれません。
 

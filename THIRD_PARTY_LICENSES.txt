@@ -1,0 +1,172 @@
+========================================================================
+ koiLM 同梱ソフトウェア・ライセンス一覧 (Third-Party Notices)
+========================================================================
+
+本アプリ(Windows版・WebUI版)は、以下のオープンソースソフトウェアを
+同梱またはランタイムとして利用しています。各ソフトウェアの著作権は
+それぞれの著作者に帰属し、以下のライセンス条件に従います。
+
+koiLM本体のコード自体のライセンスは [LICENSE](LICENSE)(MIT)を参照してください。
+
+------------------------------------------------------------------------
+1. Electron
+------------------------------------------------------------------------
+Windows版アプリのランタイム。
+https://github.com/electron/electron
+
+MIT License
+
+Copyright (c) Electron contributors
+Copyright (c) 2013-2020 GitHub Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+(Electronは内部でChromium/Node.js等をさらに同梱しています。詳細な
+サードパーティ表記はElectron配布物内の LICENSES.chromium.html 等を
+ご参照ください)
+
+------------------------------------------------------------------------
+2. llama.cpp / ggml (bin/llama-server.exe, bin/*.dll)
+------------------------------------------------------------------------
+テキスト対話の推論エンジン(llama-server.exe)、および内部で使用する
+ggml/ggml-base/ggml-cpu-*/ggml-vulkan/ggml-rpc/llama/mtmd 各dll。
+https://github.com/ggml-org/llama.cpp
+
+MIT License
+
+Copyright (c) 2023-2026 The ggml authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+------------------------------------------------------------------------
+3. stable-diffusion.cpp (bin/sd/sd-cli.exe, bin/sd/*.dll)
+------------------------------------------------------------------------
+画像生成エンジン(sd-cli.exe)、および内部で使用する
+stable-diffusion/ggml/ggml-base/ggml-cpu-*/ggml-vulkan 各dll。
+https://github.com/leejet/stable-diffusion.cpp
+
+MIT License
+
+Copyright (c) 2023 leejet
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+------------------------------------------------------------------------
+4. libwebp / libsharpyuv (bin/sd/libwebp.dll, libwebpmux.dll, libsharpyuv.dll)
+------------------------------------------------------------------------
+stable-diffusion.cppが画像入出力に利用するWebPライブラリ(Google製)。
+https://github.com/webmproject/libwebp
+
+Copyright (c) 2010, Google Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+  * Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+
+  * Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the
+    distribution.
+
+  * Neither the name of Google nor the names of its contributors may
+    be used to endorse or promote products derived from this software
+    without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+------------------------------------------------------------------------
+5. LLVM OpenMP Runtime (bin/libomp140.x86_64.dll)
+------------------------------------------------------------------------
+llama.cppのCPU並列処理に使用するOpenMPランタイム。
+https://github.com/llvm/llvm-project/tree/main/openmp
+
+Apache License v2.0 with LLVM Exceptions のもとで配布されています。
+全文: https://raw.githubusercontent.com/llvm/llvm-project/main/openmp/LICENSE.TXT
+(Apache License 2.0本文: https://www.apache.org/licenses/LICENSE-2.0)
+
+------------------------------------------------------------------------
+6. Vulkan (bin/ggml-vulkan.dll, bin/sd/ggml-vulkan.dll 等が利用するGPU API)
+------------------------------------------------------------------------
+GPUアクセラレーションにVulkan APIを使用しています(ドライバ・ランタイムは
+Khronos Groupおよび各GPUベンダーの提供物で、koiLMには同梱していません)。
+https://www.khronos.org/vulkan/
+
+------------------------------------------------------------------------
+7. 対話・画像生成モデル本体のライセンス
+------------------------------------------------------------------------
+モデルファイル自体のライセンスは README.md の「使用モデル・ライセンス」
+セクション、および各配布元(Hugging Face等)のページを参照してください。
+
+- sarashina2.2-1b-instruct-v0.1 (MIT) をベースにした独自LoRA
+- Qwen2.5-1.5B-Instruct (Apache-2.0)
+- Ninja-v1-RP-expressive-v2 ベースの独自LoRA(任意・高品質7Bモデル)
+- Animagine XL 4.0 (CreativeML Open RAIL++-M、任意・画像生成用)
+  https://huggingface.co/cagliostrolab/animagine-xl-4.0
+  違法行為・未成年者の搾取・なりすまし・誹謗中傷・差別扇動目的の利用は
+  ライセンス上禁止されています。
+
+------------------------------------------------------------------------
+本ファイルの記載内容は作成時点の情報であり、各プロジェクトの最新の
+ライセンス条件は必ずリンク先の一次情報をご確認ください。
