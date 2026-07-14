@@ -29,8 +29,8 @@ function waitForServerReady(timeoutMs = 30000) {
   });
 }
 
-/** @param modelPath 省略時は config.modelPathJa(既定言語)を使う。 */
-async function start(modelPath = config.modelPathJa) {
+/** @param modelPath 省略時は config.modelPathJa1b(既定言語・モデルサイズ)を使う。 */
+async function start(modelPath = config.modelPathJa1b) {
   if (serverProcess) return;
   if (!fs.existsSync(config.llamaServerExe) || !fs.existsSync(modelPath)) {
     console.warn(
@@ -39,7 +39,7 @@ async function start(modelPath = config.modelPathJa) {
     );
     return;
   }
-  serverProcess = spawn(config.llamaServerExe, [
+  const proc = spawn(config.llamaServerExe, [
     "-m",
     modelPath,
     "--port",
@@ -47,23 +47,33 @@ async function start(modelPath = config.modelPathJa) {
     "-c",
     "4096",
   ]);
+  serverProcess = proc;
   currentModelPath = modelPath;
-  serverProcess.stdout.on("data", (d) => process.stdout.write(`[llama-server] ${d}`));
-  serverProcess.stderr.on("data", (d) => process.stderr.write(`[llama-server] ${d}`));
-  serverProcess.on("exit", (code) => {
+  proc.stdout.on("data", (d) => process.stdout.write(`[llama-server] ${d}`));
+  proc.stderr.on("data", (d) => process.stderr.write(`[llama-server] ${d}`));
+  proc.on("exit", (code) => {
     console.log(`[llmEngine] llama-server終了 (code=${code})`);
-    serverProcess = null;
-    currentModelPath = null;
+    // 既に別プロセスに差し替わっている場合は、その参照を消さない
+    if (serverProcess === proc) {
+      serverProcess = null;
+      currentModelPath = null;
+    }
   });
   await waitForServerReady();
 }
 
 function stop() {
-  if (serverProcess) {
-    serverProcess.kill();
-    serverProcess = null;
-    currentModelPath = null;
-  }
+  return new Promise((resolve) => {
+    if (serverProcess) {
+      const proc = serverProcess;
+      proc.once("exit", () => resolve());
+      proc.kill();
+      serverProcess = null;
+      currentModelPath = null;
+    } else {
+      resolve();
+    }
+  });
 }
 
 /**
@@ -72,7 +82,7 @@ function stop() {
  */
 async function switchModel(modelPath) {
   if (currentModelPath === modelPath) return;
-  stop();
+  await stop();
   await start(modelPath);
 }
 

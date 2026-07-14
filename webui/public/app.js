@@ -165,20 +165,20 @@ document.querySelectorAll("#languageSection button[data-lang]").forEach((btn) =>
       body: JSON.stringify({ language: btn.dataset.lang }),
     });
     applyLanguage(btn.dataset.lang);
-    document.getElementById("languageSection").style.display = "none";
-    document.getElementById("ageGateSection").style.display = "block";
+    document.getElementById("languageSection").classList.add("hidden");
+    document.getElementById("ageGateSection").classList.remove("hidden");
   });
 });
 
 document.getElementById("ageYesBtn").addEventListener("click", async () => {
   settings = await api("/settings/age-verified", { method: "POST", body: JSON.stringify({ isAdult: true }) });
-  document.getElementById("ageGateSection").style.display = "none";
-  document.getElementById("romanticTargetSection").style.display = "block";
+  document.getElementById("ageGateSection").classList.add("hidden");
+  document.getElementById("romanticTargetSection").classList.remove("hidden");
 });
 document.getElementById("ageNoBtn").addEventListener("click", async () => {
   settings = await api("/settings/age-verified", { method: "POST", body: JSON.stringify({ isAdult: false }) });
-  document.getElementById("ageGateSection").style.display = "none";
-  document.getElementById("romanticTargetSection").style.display = "block";
+  document.getElementById("ageGateSection").classList.add("hidden");
+  document.getElementById("romanticTargetSection").classList.remove("hidden");
 });
 
 document.querySelectorAll("#romanticTargetSection button[data-target]").forEach((btn) => {
@@ -187,6 +187,9 @@ document.querySelectorAll("#romanticTargetSection button[data-target]").forEach(
       method: "POST",
       body: JSON.stringify({ target: btn.dataset.target }),
     });
+    document.getElementById("languageSection").classList.remove("hidden");
+    document.getElementById("ageGateSection").classList.add("hidden");
+    document.getElementById("romanticTargetSection").classList.add("hidden");
     document.getElementById("onboarding").classList.add("hidden");
     showApp();
   });
