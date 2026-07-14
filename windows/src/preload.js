@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("koilm", {
   // 設定
   getSettings: () => ipcRenderer.invoke("settings:get"),
+  getLlmStatus: () => ipcRenderer.invoke("llm:status"),
   setAgeVerified: (isAdult) => ipcRenderer.invoke("settings:setAgeVerified", isAdult),
   setContentLevel: (level) => ipcRenderer.invoke("settings:setContentLevel", level),
   setRomanticTarget: (target) => ipcRenderer.invoke("settings:setRomanticTarget", target),

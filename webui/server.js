@@ -48,6 +48,10 @@ app.use(express.static(path.join(__dirname, "public")));
 // --- 設定 ---
 app.get("/api/settings", (_req, res) => res.json(store.load().settings));
 
+app.get("/api/llm-status", (_req, res) =>
+  res.json({ running: llmEngine.isRunning(), llamaServerExeExists: fs.existsSync(config.llamaServerExe) })
+);
+
 app.post("/api/settings/age-verified", (req, res) => {
   const data = store.load();
   data.settings.ageVerified = !!req.body.isAdult;

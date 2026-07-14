@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 
 // bin/ と models/ はサイズが大きいためgit管理外。webui/ 直下に配置する想定
 // (windows/bin, windows/models と同じファイルをコピーしてくれば良い)。
@@ -21,8 +22,15 @@ module.exports = {
   webPort: Number(process.env.KOILM_WEB_PORT || 3939),
   pin: process.env.KOILM_PIN || null,
 
+  /**
+   * 7B選択時にファイルが未配置の場合は、無音で起動失敗するのを避けるため1Bにフォールバックする
+   * (7Bはユーザーがオプションで別途ダウンロードする前提のため、未配置のまま選択されている状況が起こりうる)。
+   */
   resolveModelPath(settings) {
     if (settings.language === "en") return module.exports.modelPathEn;
-    return settings.modelSize === "7b" ? module.exports.modelPathJa7b : module.exports.modelPathJa1b;
+    if (settings.modelSize === "7b" && fs.existsSync(module.exports.modelPathJa7b)) {
+      return module.exports.modelPathJa7b;
+    }
+    return module.exports.modelPathJa1b;
   },
 };

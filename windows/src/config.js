@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 
 // bin/ と models/ はサイズが大きいため git 管理外・配布exeにも同梱しない
 // (配布は7z等で別ファイルとして配り、実行ファイルと同じフォルダに展開してもらう想定)。
@@ -31,9 +32,16 @@ module.exports = {
     process.env.KOILM_SD_MODEL_PATH || path.join(baseDir, "models", "animagine-xl-4.0-Q4_K.gguf"),
   llamaServerPort: 8734,
 
-  /** settings.language / settings.modelSize から実際に使うGGUFパスを決定する。 */
+  /**
+   * settings.language / settings.modelSize から実際に使うGGUFパスを決定する。
+   * 7B選択時にファイルが未配置の場合は、無音で起動失敗するのを避けるため1Bにフォールバックする
+   * (7Bはユーザーがオプションで別途ダウンロードする前提のため、未配置のまま選択されている状況が起こりうる)。
+   */
   resolveModelPath(settings) {
     if (settings.language === "en") return module.exports.modelPathEn;
-    return settings.modelSize === "7b" ? module.exports.modelPathJa7b : module.exports.modelPathJa1b;
+    if (settings.modelSize === "7b" && fs.existsSync(module.exports.modelPathJa7b)) {
+      return module.exports.modelPathJa7b;
+    }
+    return module.exports.modelPathJa1b;
   },
 };

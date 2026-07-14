@@ -37,6 +37,7 @@ const translations = {
     errorPrefix: "[エラー]",
     readLabel: "既読",
     pinError: "PINが違います",
+    llmNotRunning: "llama-serverが起動していません。bin/, models/ にファイルが正しく配置されているか確認してください。",
   },
   en: {
     ageQuestion: "Age check: Are you 18 or older?",
@@ -73,6 +74,7 @@ const translations = {
     errorPrefix: "[Error]",
     readLabel: "Read",
     pinError: "Wrong PIN",
+    llmNotRunning: "llama-server is not running. Please check that files are placed correctly in bin/ and models/.",
   },
 };
 
@@ -122,7 +124,11 @@ async function api(path, options = {}) {
     location.reload();
     throw new Error("unauthorized");
   }
-  return res.json();
+  const body = await res.json();
+  if (!res.ok) {
+    throw new Error(body.error || `HTTP ${res.status}`);
+  }
+  return body;
 }
 
 async function init() {
@@ -210,6 +216,12 @@ async function showApp() {
 
   characters = await api("/characters");
   renderCharacterList();
+  await refreshLlmStatusBanner();
+}
+
+async function refreshLlmStatusBanner() {
+  const status = await api("/llm-status");
+  document.getElementById("llmStatusBanner").classList.toggle("hidden", status.running);
 }
 
 function renderCharacterList() {
@@ -312,6 +324,7 @@ async function sendMessage() {
     renderCharacterList();
   } catch (err) {
     appendBubble({ role: "assistant", content: `${t("errorPrefix")} ${err.message}` });
+    refreshLlmStatusBanner();
   }
 }
 
@@ -380,6 +393,7 @@ document.getElementById("modelSizeSelect").addEventListener("change", async (e) 
     method: "POST",
     body: JSON.stringify({ modelSize: e.target.value }),
   });
+  await refreshLlmStatusBanner();
 });
 document.getElementById("contentLevelSelect").addEventListener("change", async (e) => {
   settings = await api("/settings/content-level", { method: "POST", body: JSON.stringify({ level: e.target.value }) });

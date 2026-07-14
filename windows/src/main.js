@@ -52,6 +52,11 @@ app.on("window-all-closed", () => {
 
 ipcMain.handle("settings:get", () => store.load().settings);
 
+ipcMain.handle("llm:status", () => ({
+  running: llmEngine.isRunning(),
+  llamaServerExeExists: fs.existsSync(config.llamaServerExe),
+}));
+
 ipcMain.handle("settings:setAgeVerified", (_event, isAdult) => {
   const data = store.load();
   data.settings.ageVerified = isAdult;

@@ -39,6 +39,7 @@ const translations = {
     create: "作成",
     errorPrefix: "[エラー]",
     readLabel: "既読",
+    llmNotRunning: "llama-serverが起動していません。bin/, models/ にファイルが正しく配置されているか確認してください。",
   },
   en: {
     welcome: "Welcome",
@@ -80,6 +81,7 @@ const translations = {
     create: "Create",
     errorPrefix: "[Error]",
     readLabel: "Read",
+    llmNotRunning: "llama-server is not running. Please check that files are placed correctly in bin/ and models/.",
   },
 };
 
@@ -168,6 +170,12 @@ async function showApp() {
 
   characters = await window.koilm.listCharacters();
   renderCharacterList();
+  await refreshLlmStatusBanner();
+}
+
+async function refreshLlmStatusBanner() {
+  const status = await window.koilm.getLlmStatus();
+  document.getElementById("llmStatusBanner").classList.toggle("hidden", status.running);
 }
 
 /** 7Bモデルは日本語版のみ選択肢に出す(英語版はQwen2.5-1.5B固定)。 */
@@ -246,6 +254,7 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
     renderCharacterList();
   } catch (err) {
     appendBubble({ role: "assistant", content: `${t("errorPrefix")} ${err.message}` });
+    refreshLlmStatusBanner();
   }
 });
 
@@ -296,6 +305,8 @@ document.getElementById("languageSelect").addEventListener("change", async (e) =
 });
 document.getElementById("modelSizeSelect").addEventListener("change", async (e) => {
   settings = await window.koilm.setModelSize(e.target.value);
+  document.getElementById("modelSizeSelect").value = settings.modelSize;
+  await refreshLlmStatusBanner();
 });
 document.getElementById("contentLevelSelect").addEventListener("change", async (e) => {
   settings = await window.koilm.setContentLevel(e.target.value);
