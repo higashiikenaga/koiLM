@@ -4,6 +4,8 @@ const fs = require("fs");
 
 const llmEngine = require("./llmEngine");
 const imageGen = require("./imageGen");
+const imageTrigger = require("./imageTrigger");
+const memoryManager = require("./memoryManager");
 const store = require("./store");
 const chatRepository = require("./chatRepository");
 const characterRepository = require("./characterRepository");
@@ -17,6 +19,49 @@ function charactersDir() {
   const dir = path.join(app.getPath("userData"), "characters");
   fs.mkdirSync(dir, { recursive: true });
   return dir;
+}
+
+function scenesDir(characterId) {
+  const dir = path.join(charactersDir(), characterId, "scenes");
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+function toFileUrl(filePath) {
+  return "file:///" + encodeURI(filePath.replace(/\\/g, "/"));
+}
+
+/** キャラのNSFW許可・年齢確認・現在の表現レベルの全てを満たす場合のみtrue。 */
+function isImageNsfwAllowed(character) {
+  const settings = store.load().settings;
+  return !!character.imageNsfw && settings.ageVerified && settings.contentLevel === "NSFW";
+}
+
+/**
+ * 好感度が閾値を新たに超えた場合、またはユーザーが画像を要求した場合に
+ * シーン画像を1枚生成し、会話ログにも記録する。生成しない場合はnullを返す。
+ */
+async function maybeGenerateScene(sessionId, userMessage, beforeScore) {
+  const character = characterRepository.getCharacter(sessionId);
+  if (!character) return null;
+
+  const leveledUp = imageTrigger.crossedAffectionThreshold(beforeScore, character.affectionScore || 0);
+  const requested = imageTrigger.isImageRequested(userMessage);
+  if (!leveledUp && !requested) return null;
+
+  const outputPath = path.join(scenesDir(character.id), `${Date.now()}.png`);
+  const nsfw = isImageNsfwAllowed(character);
+  const generated = await imageGen
+    .generatePortrait({ appearance: character.appearance, nsfw, outputPath })
+    .catch((err) => {
+      console.error("[imageGen] シーン画像生成失敗:", err);
+      return null;
+    });
+  if (!generated) return null;
+
+  const imageUrl = toFileUrl(outputPath);
+  memoryManager.addImageTurn(character.id, imageUrl);
+  return { url: imageUrl, trigger: leveledUp ? "affection" : "request" };
 }
 
 function createWindow() {
@@ -123,22 +168,27 @@ ipcMain.handle("settings:setModelSize", async (_event, modelSize) => {
 
 ipcMain.handle("character:list", () => characterRepository.listCharacters());
 
-ipcMain.handle("character:create", async (_event, { name, systemPrompt, appearance }) => {
-  const character = characterRepository.createCharacter(name, systemPrompt);
+ipcMain.handle("character:create", async (_event, { name, systemPrompt, appearance, imageNsfw }) => {
+  const character = characterRepository.createCharacter(name, systemPrompt, appearance, imageNsfw);
   const dir = path.join(charactersDir(), character.id);
   fs.mkdirSync(dir, { recursive: true });
   const portraitPath = path.join(dir, "portrait.png");
-  await imageGen.generatePortrait({ appearance, outputPath: portraitPath }).catch((err) => {
+  const nsfw = isImageNsfwAllowed(character);
+  await imageGen.generatePortrait({ appearance, nsfw, outputPath: portraitPath }).catch((err) => {
     console.error("[imageGen] 立ち絵生成失敗:", err);
     return null;
   });
-  return { character, portraitPath };
+  return { character, portraitPath: fs.existsSync(portraitPath) ? toFileUrl(portraitPath) : null };
 });
 
 // キャラクター削除("別れる")
 ipcMain.handle("character:delete", (_event, id) => {
   characterRepository.deleteCharacter(id);
   return true;
+});
+
+ipcMain.handle("character:setImageNsfw", (_event, { id, enabled }) => {
+  return characterRepository.setImageNsfw(id, enabled);
 });
 
 // --- チャット ---
@@ -150,8 +200,10 @@ ipcMain.handle("chat:history", (_event, sessionId) => {
 
 ipcMain.handle("chat:send", async (_event, { sessionId, personaPrompt, message }) => {
   const level = store.load().settings.contentLevel;
+  const beforeScore = characterRepository.getCharacter(sessionId)?.affectionScore || 0;
   const reply = await chatRepository.sendMessage(sessionId, personaPrompt, message, level);
-  return { reply };
+  const image = await maybeGenerateScene(sessionId, message, beforeScore);
+  return { reply, image };
 });
 
 /** 「タイミング」モード: 送信だけ即座に行い、返信は最大15分以内のランダムなタイミングで届く。 */

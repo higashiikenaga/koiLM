@@ -38,6 +38,11 @@ const translations = {
     readLabel: "既読",
     pinError: "PINが違います",
     llmNotRunning: "llama-serverが起動していません。bin/, models/ にファイルが正しく配置されているか確認してください。",
+    imageNsfwPrompt: "NSFW画像を許可する(表現レベルがNSFW・年齢確認済みの場合のみ有効)",
+    imageRequestBtn: "🖼",
+    imageRequestMessage: "画像を見せて",
+    imageNsfwToggleOn: "🔞ON",
+    imageNsfwToggleOff: "🔞OFF",
   },
   en: {
     ageQuestion: "Age check: Are you 18 or older?",
@@ -75,6 +80,11 @@ const translations = {
     readLabel: "Read",
     pinError: "Wrong PIN",
     llmNotRunning: "llama-server is not running. Please check that files are placed correctly in bin/ and models/.",
+    imageNsfwPrompt: "Allow NSFW images (only takes effect when content level is NSFW and age is verified)",
+    imageRequestBtn: "🖼",
+    imageRequestMessage: "Show me a picture",
+    imageNsfwToggleOn: "🔞ON",
+    imageNsfwToggleOff: "🔞OFF",
   },
 };
 
@@ -238,6 +248,19 @@ function renderCharacterList() {
     nameSpan.style.cursor = "pointer";
     nameSpan.style.flex = "1";
     nameSpan.addEventListener("click", () => openChat(c));
+    const nsfwBtn = document.createElement("button");
+    nsfwBtn.textContent = c.imageNsfw ? t("imageNsfwToggleOn") : t("imageNsfwToggleOff");
+    nsfwBtn.title = t("imageNsfwPrompt");
+    nsfwBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const updated = await api(`/characters/${c.id}/image-nsfw`, {
+        method: "POST",
+        body: JSON.stringify({ enabled: !c.imageNsfw }),
+      });
+      const idx = characters.findIndex((x) => x.id === c.id);
+      if (idx !== -1) characters[idx] = updated;
+      renderCharacterList();
+    });
     const delBtn = document.createElement("button");
     delBtn.textContent = t("breakUpLabel");
     delBtn.addEventListener("click", async (e) => {
@@ -259,6 +282,7 @@ function renderCharacterList() {
     left.appendChild(img);
     left.appendChild(nameSpan);
     item.appendChild(left);
+    item.appendChild(nsfwBtn);
     item.appendChild(delBtn);
     listEl.appendChild(item);
   }
@@ -277,7 +301,15 @@ function appendBubble(turn) {
   const logEl = document.getElementById("log");
   const bubble = document.createElement("div");
   bubble.className = `bubble ${turn.role}`;
-  bubble.textContent = turn.content;
+  if (turn.imageUrl) {
+    const img = document.createElement("img");
+    img.src = turn.imageUrl;
+    img.style.maxWidth = "100%";
+    img.style.borderRadius = "6px";
+    bubble.appendChild(img);
+  } else {
+    bubble.textContent = turn.content;
+  }
   logEl.appendChild(bubble);
   if (turn.role === "user" && turn.readAt) {
     const label = document.createElement("div");
@@ -293,14 +325,15 @@ function stopPolling() {
   pollTimer = null;
 }
 
-document.getElementById("sendBtn").addEventListener("click", sendMessage);
+document.getElementById("sendBtn").addEventListener("click", () => sendMessage());
+document.getElementById("imageRequestBtn").addEventListener("click", () => sendMessage(t("imageRequestMessage")));
 document.getElementById("msgInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter") sendMessage();
 });
 
-async function sendMessage() {
+async function sendMessage(forcedMessage) {
   const input = document.getElementById("msgInput");
-  const message = input.value.trim();
+  const message = forcedMessage !== undefined ? forcedMessage : input.value.trim();
   if (!message || !currentCharacter) return;
   appendBubble({ role: "user", content: message, readAt: null });
   input.value = "";
@@ -315,11 +348,12 @@ async function sendMessage() {
   }
 
   try {
-    const { reply } = await api(`/chat/${currentCharacter.id}/send`, {
+    const { reply, image } = await api(`/chat/${currentCharacter.id}/send`, {
       method: "POST",
       body: JSON.stringify({ personaPrompt: currentCharacter.systemPrompt, message }),
     });
     appendBubble({ role: "assistant", content: reply });
+    if (image) appendBubble({ role: "assistant", content: "", imageUrl: image.url });
     characters = await api("/characters");
     renderCharacterList();
   } catch (err) {
@@ -344,11 +378,13 @@ const newCharModal = document.getElementById("newCharModal");
 const newCharName = document.getElementById("newCharName");
 const newCharSystemPrompt = document.getElementById("newCharSystemPrompt");
 const newCharAppearance = document.getElementById("newCharAppearance");
+const newCharImageNsfw = document.getElementById("newCharImageNsfw");
 
 document.getElementById("newCharBtn").addEventListener("click", () => {
   newCharName.value = "";
   newCharSystemPrompt.value = "";
   newCharAppearance.value = "";
+  newCharImageNsfw.checked = false;
   newCharModal.classList.remove("hidden");
   newCharName.focus();
 });
@@ -365,10 +401,11 @@ document.getElementById("newCharCreateBtn").addEventListener("click", async () =
   }
   const systemPrompt = newCharSystemPrompt.value.trim();
   const appearance = newCharAppearance.value.trim();
+  const imageNsfw = newCharImageNsfw.checked;
   newCharModal.classList.add("hidden");
   const { character } = await api("/characters", {
     method: "POST",
-    body: JSON.stringify({ name, systemPrompt, appearance }),
+    body: JSON.stringify({ name, systemPrompt, appearance, imageNsfw }),
   });
   characters.push(character);
   renderCharacterList();

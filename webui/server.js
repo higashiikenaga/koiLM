@@ -11,6 +11,8 @@ const characterRepository = require("./src/characterRepository");
 const delayedReply = require("./src/delayedReply");
 const contentLevel = require("./src/contentLevel");
 const imageGen = require("./src/imageGen");
+const imageTrigger = require("./src/imageTrigger");
+const memoryManager = require("./src/memoryManager");
 
 const app = express();
 app.use(express.json());
@@ -119,10 +121,11 @@ app.post("/api/settings/model-size", async (req, res) => {
 app.get("/api/characters", (_req, res) => res.json(characterRepository.listCharacters()));
 
 app.post("/api/characters", async (req, res) => {
-  const { name, systemPrompt, appearance } = req.body;
-  const character = characterRepository.createCharacter(name, systemPrompt);
+  const { name, systemPrompt, appearance, imageNsfw } = req.body;
+  const character = characterRepository.createCharacter(name, systemPrompt, appearance, imageNsfw);
   const portraitPath = path.join(store.portraitDir(), `${character.id}.png`);
-  await imageGen.generatePortrait({ appearance, outputPath: portraitPath }).catch((err) => {
+  const nsfw = isImageNsfwAllowed(character);
+  await imageGen.generatePortrait({ appearance, nsfw, outputPath: portraitPath }).catch((err) => {
     console.error("[imageGen] 立ち絵生成失敗:", err);
     return null;
   });
@@ -134,11 +137,29 @@ app.delete("/api/characters/:id", (req, res) => {
   res.json({ ok: true });
 });
 
+app.post("/api/characters/:id/image-nsfw", (req, res) => {
+  const character = characterRepository.setImageNsfw(req.params.id, req.body.enabled);
+  if (!character) return res.status(404).json({ error: "not found" });
+  res.json(character);
+});
+
 app.get("/api/characters/:id/portrait", (req, res) => {
   const portraitPath = path.join(store.portraitDir(), `${req.params.id}.png`);
   if (!fs.existsSync(portraitPath)) return res.status(404).end();
   res.sendFile(portraitPath);
 });
+
+app.get("/api/characters/:id/scenes/:filename", (req, res) => {
+  const scenePath = path.join(store.scenesDir(req.params.id), req.params.filename);
+  if (!fs.existsSync(scenePath)) return res.status(404).end();
+  res.sendFile(scenePath);
+});
+
+/** キャラのNSFW許可・年齢確認・現在の表現レベルの全てを満たす場合のみtrue。 */
+function isImageNsfwAllowed(character) {
+  const settings = store.load().settings;
+  return !!character.imageNsfw && settings.ageVerified && settings.contentLevel === "NSFW";
+}
 
 // --- チャット ---
 app.get("/api/chat/:sessionId/history", (req, res) => {
@@ -148,14 +169,45 @@ app.get("/api/chat/:sessionId/history", (req, res) => {
 
 app.post("/api/chat/:sessionId/send", async (req, res) => {
   const { personaPrompt, message } = req.body;
+  const sessionId = req.params.sessionId;
   const level = store.load().settings.contentLevel;
   try {
-    const reply = await chatRepository.sendMessage(req.params.sessionId, personaPrompt, message, level);
-    res.json({ reply });
+    const beforeScore = characterRepository.getCharacter(sessionId)?.affectionScore || 0;
+    const reply = await chatRepository.sendMessage(sessionId, personaPrompt, message, level);
+    const image = await maybeGenerateScene(sessionId, message, beforeScore);
+    res.json({ reply, image });
   } catch (err) {
     res.status(500).json({ error: String(err) });
   }
 });
+
+/**
+ * 好感度が閾値を新たに超えた場合、またはユーザーが画像を要求した場合に
+ * シーン画像を1枚生成し、会話ログにも記録する。生成しない場合はnullを返す。
+ */
+async function maybeGenerateScene(sessionId, userMessage, beforeScore) {
+  const character = characterRepository.getCharacter(sessionId);
+  if (!character) return null;
+
+  const leveledUp = imageTrigger.crossedAffectionThreshold(beforeScore, character.affectionScore || 0);
+  const requested = imageTrigger.isImageRequested(userMessage);
+  if (!leveledUp && !requested) return null;
+
+  const filename = `${Date.now()}.png`;
+  const outputPath = path.join(store.scenesDir(character.id), filename);
+  const nsfw = isImageNsfwAllowed(character);
+  const generated = await imageGen
+    .generatePortrait({ appearance: character.appearance, nsfw, outputPath })
+    .catch((err) => {
+      console.error("[imageGen] シーン画像生成失敗:", err);
+      return null;
+    });
+  if (!generated) return null;
+
+  const imageUrl = `/api/characters/${character.id}/scenes/${filename}`;
+  memoryManager.addImageTurn(character.id, imageUrl);
+  return { url: imageUrl, trigger: leveledUp ? "affection" : "request" };
+}
 
 // 「タイミング」モード: 即座に返し、実際の返信はポーリングで取りに来てもらう簡易実装。
 const pendingTimedReplies = new Map(); // sessionId -> reply text (1件のみ保持)

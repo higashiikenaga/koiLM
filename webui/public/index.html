@@ -91,6 +91,7 @@
         <div id="log"></div>
         <div id="inputRow">
           <input id="msgInput" data-i18n-placeholder="msgPlaceholder" placeholder="メッセージを入力" />
+          <button id="imageRequestBtn" data-i18n="imageRequestBtn" title="画像をリクエスト">🖼</button>
           <button id="sendBtn" data-i18n="send">送信</button>
         </div>
       </div>
@@ -161,6 +162,7 @@
       <label><span data-i18n="appearancePrompt">見た目の特徴(英語タグ推奨)</span>
         <input id="newCharAppearance" type="text" />
       </label>
+      <label><input type="checkbox" id="newCharImageNsfw" /> <span data-i18n="imageNsfwPrompt">NSFW画像を許可する(表現レベルがNSFW・年齢確認済みの場合のみ有効)</span></label>
       <div class="modal-actions">
         <button id="newCharCancelBtn" data-i18n="cancel">キャンセル</button>
         <button id="newCharCreateBtn" data-i18n="create">作成</button>

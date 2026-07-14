@@ -32,6 +32,14 @@ async function addTurn(sessionId, role, content) {
   }
 }
 
+/** シーン画像を1件、会話ログに記録する(LLMの応答文脈には含めない。チャットUI表示専用)。 */
+function addImageTurn(sessionId, imageUrl) {
+  const data = store.load();
+  const turns = turnsFor(sessionId);
+  turns.push({ id: data.nextTurnId++, role: "assistant", content: "", imageUrl, timestamp: Date.now(), readAt: null });
+  store.save();
+}
+
 function extractProfile(sessionId, content) {
   const data = store.load();
   if (!data.profileMemory[sessionId]) data.profileMemory[sessionId] = {};
@@ -83,4 +91,4 @@ function buildSystemPrompt(sessionId, basePersonaPrompt) {
   return combined;
 }
 
-module.exports = { addTurn, buildSystemPrompt, turnsFor };
+module.exports = { addTurn, addImageTurn, buildSystemPrompt, turnsFor };

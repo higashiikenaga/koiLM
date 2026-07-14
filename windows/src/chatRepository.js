@@ -40,10 +40,12 @@ async function generateReply(sessionId, personaPrompt, requestedLevel) {
     `${basePrompt}\n\n${contentLevel.directiveFor(effectiveLevel)}\n\n${romanticTarget.directiveFor(target)}\n\n${languageDirective}`;
 
   const turns = memoryManager.turnsFor(sessionId);
-  const recentTurns = turns.map((t) => ({
-    role: t.role === "assistant" ? "assistant" : "user",
-    content: t.content,
-  }));
+  const recentTurns = turns
+    .filter((t) => !t.imageUrl) // シーン画像専用ターンはLLMの文脈には含めない
+    .map((t) => ({
+      role: t.role === "assistant" ? "assistant" : "user",
+      content: t.content,
+    }));
   const promptTurns = [{ role: "system", content: systemPrompt }, ...recentTurns];
   const fullPrompt = promptTemplate.build(promptTurns, true);
 

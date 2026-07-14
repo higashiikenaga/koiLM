@@ -15,9 +15,10 @@ contextBridge.exposeInMainWorld("koilm", {
 
   // キャラクター管理
   listCharacters: () => ipcRenderer.invoke("character:list"),
-  createCharacter: (name, systemPrompt, appearance) =>
-    ipcRenderer.invoke("character:create", { name, systemPrompt, appearance }),
+  createCharacter: (name, systemPrompt, appearance, imageNsfw) =>
+    ipcRenderer.invoke("character:create", { name, systemPrompt, appearance, imageNsfw }),
   deleteCharacter: (id) => ipcRenderer.invoke("character:delete", id),
+  setCharacterImageNsfw: (id, enabled) => ipcRenderer.invoke("character:setImageNsfw", { id, enabled }),
 
   // チャット
   getHistory: (sessionId) => ipcRenderer.invoke("chat:history", sessionId),

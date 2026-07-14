@@ -40,6 +40,11 @@ const translations = {
     errorPrefix: "[エラー]",
     readLabel: "既読",
     llmNotRunning: "llama-serverが起動していません。bin/, models/ にファイルが正しく配置されているか確認してください。",
+    imageNsfwPrompt: "NSFW画像を許可する(表現レベルがNSFW・年齢確認済みの場合のみ有効)",
+    imageRequestBtn: "🖼",
+    imageRequestMessage: "画像を見せて",
+    imageNsfwToggleOn: "🔞ON",
+    imageNsfwToggleOff: "🔞OFF",
   },
   en: {
     welcome: "Welcome",
@@ -82,6 +87,11 @@ const translations = {
     errorPrefix: "[Error]",
     readLabel: "Read",
     llmNotRunning: "llama-server is not running. Please check that files are placed correctly in bin/ and models/.",
+    imageNsfwPrompt: "Allow NSFW images (only takes effect when content level is NSFW and age is verified)",
+    imageRequestBtn: "🖼",
+    imageRequestMessage: "Show me a picture",
+    imageNsfwToggleOn: "🔞ON",
+    imageNsfwToggleOff: "🔞OFF",
   },
 };
 
@@ -193,6 +203,16 @@ function renderCharacterList() {
     nameSpan.textContent = `${c.name} (${t("affectionLabel", c.affectionScore || 0)})`;
     nameSpan.style.cursor = "pointer";
     nameSpan.addEventListener("click", () => openChat(c));
+    const nsfwBtn = document.createElement("button");
+    nsfwBtn.textContent = c.imageNsfw ? t("imageNsfwToggleOn") : t("imageNsfwToggleOff");
+    nsfwBtn.title = t("imageNsfwPrompt");
+    nsfwBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const updated = await window.koilm.setCharacterImageNsfw(c.id, !c.imageNsfw);
+      const idx = characters.findIndex((x) => x.id === c.id);
+      if (idx !== -1) characters[idx] = updated;
+      renderCharacterList();
+    });
     const delBtn = document.createElement("button");
     delBtn.textContent = t("breakUpLabel");
     delBtn.addEventListener("click", async (e) => {
@@ -207,6 +227,7 @@ function renderCharacterList() {
       renderCharacterList();
     });
     item.appendChild(nameSpan);
+    item.appendChild(nsfwBtn);
     item.appendChild(delBtn);
     listEl.appendChild(item);
   }
@@ -222,7 +243,15 @@ async function openChat(character) {
 function appendBubble(turn) {
   const bubble = document.createElement("div");
   bubble.className = `bubble ${turn.role}`;
-  bubble.textContent = turn.content;
+  if (turn.imageUrl) {
+    const img = document.createElement("img");
+    img.src = turn.imageUrl;
+    img.style.maxWidth = "100%";
+    img.style.borderRadius = "6px";
+    bubble.appendChild(img);
+  } else {
+    bubble.textContent = turn.content;
+  }
   logEl.appendChild(bubble);
   if (turn.role === "user" && turn.readAt) {
     const label = document.createElement("div");
@@ -232,8 +261,7 @@ function appendBubble(turn) {
   }
 }
 
-document.getElementById("sendBtn").addEventListener("click", async () => {
-  const message = msgInput.value.trim();
+async function sendCurrentMessage(message) {
   if (!message || !currentCharacter) return;
   appendBubble({ role: "user", content: message, readAt: null });
   msgInput.value = "";
@@ -244,19 +272,23 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
   }
 
   try {
-    const { reply } = await window.koilm.sendMessage(
+    const { reply, image } = await window.koilm.sendMessage(
       currentCharacter.id,
       currentCharacter.systemPrompt,
       message
     );
     appendBubble({ role: "assistant", content: reply });
+    if (image) appendBubble({ role: "assistant", content: "", imageUrl: image.url });
     characters = await window.koilm.listCharacters();
     renderCharacterList();
   } catch (err) {
     appendBubble({ role: "assistant", content: `${t("errorPrefix")} ${err.message}` });
     refreshLlmStatusBanner();
   }
-});
+}
+
+document.getElementById("sendBtn").addEventListener("click", () => sendCurrentMessage(msgInput.value.trim()));
+document.getElementById("imageRequestBtn").addEventListener("click", () => sendCurrentMessage(t("imageRequestMessage")));
 
 window.koilm.onTimedReplyReady(({ sessionId, reply }) => {
   if (currentCharacter?.id === sessionId) {
@@ -268,11 +300,13 @@ const newCharModal = document.getElementById("newCharModal");
 const newCharName = document.getElementById("newCharName");
 const newCharSystemPrompt = document.getElementById("newCharSystemPrompt");
 const newCharAppearance = document.getElementById("newCharAppearance");
+const newCharImageNsfw = document.getElementById("newCharImageNsfw");
 
 document.getElementById("newCharBtn").addEventListener("click", () => {
   newCharName.value = "";
   newCharSystemPrompt.value = "";
   newCharAppearance.value = "";
+  newCharImageNsfw.checked = false;
   newCharModal.classList.remove("hidden");
   newCharName.focus();
 });
@@ -289,8 +323,9 @@ document.getElementById("newCharCreateBtn").addEventListener("click", async () =
   }
   const systemPrompt = newCharSystemPrompt.value.trim();
   const appearance = newCharAppearance.value.trim();
+  const imageNsfw = newCharImageNsfw.checked;
   newCharModal.classList.add("hidden");
-  const { character } = await window.koilm.createCharacter(name, systemPrompt, appearance);
+  const { character } = await window.koilm.createCharacter(name, systemPrompt, appearance, imageNsfw);
   characters.push(character);
   renderCharacterList();
 });

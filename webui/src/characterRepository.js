@@ -11,17 +11,27 @@ function getCharacter(id) {
   return store.load().characters.find((c) => c.id === id) || null;
 }
 
-function createCharacter(name, systemPrompt) {
+function createCharacter(name, systemPrompt, appearance, imageNsfw) {
   const data = store.load();
   const character = {
     id: crypto.randomUUID(),
     name,
     systemPrompt,
+    appearance: appearance || "",
+    imageNsfw: !!imageNsfw,
     notificationsEnabled: true,
     affectionScore: 0,
     createdAt: Date.now(),
   };
   data.characters.push(character);
+  store.save();
+  return character;
+}
+
+function setImageNsfw(id, enabled) {
+  const character = getCharacter(id);
+  if (!character) return null;
+  character.imageNsfw = !!enabled;
   store.save();
   return character;
 }
@@ -43,4 +53,11 @@ function setNotificationsEnabled(id, enabled) {
   store.save();
 }
 
-module.exports = { listCharacters, getCharacter, createCharacter, deleteCharacter, setNotificationsEnabled };
+module.exports = {
+  listCharacters,
+  getCharacter,
+  createCharacter,
+  deleteCharacter,
+  setNotificationsEnabled,
+  setImageNsfw,
+};

@@ -61,4 +61,10 @@ function portraitDir() {
   return dir;
 }
 
-module.exports = { load, save, portraitDir };
+function scenesDir(characterId) {
+  const dir = path.join(DATA_DIR, "characters", characterId, "scenes");
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+module.exports = { load, save, portraitDir, scenesDir };
