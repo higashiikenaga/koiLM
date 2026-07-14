@@ -30,9 +30,16 @@
   .char-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 6px; }
   #settingsPanel { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); }
   #settingsPanel .box { background: white; max-width: 420px; margin: 40px auto; padding: 16px; border-radius: 8px; max-height: 80vh; overflow-y: auto; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .modal-box { background: #fff; border-radius: 8px; padding: 20px; width: 360px; max-width: 90vw; }
+  .modal-box h3 { margin-top: 0; }
+  .modal-box label { display: block; margin-bottom: 10px; font-size: 13px; }
+  .modal-box input, .modal-box textarea { width: 100%; box-sizing: border-box; padding: 6px; margin-top: 4px; font-size: 15px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
   @media (prefers-color-scheme: dark) {
     body { background: #111; color: #eee; }
     #settingsPanel .box { background: #222; color: #eee; }
+    .modal-box { background: #222; color: #eee; }
     .bubble.user { background: #1e3a5f; }
     .bubble.assistant { background: #2a2a2a; }
     .char-item:hover { background: #2a2a2a; }
@@ -74,8 +81,8 @@
     </div>
     <div id="body">
       <div id="sidebar">
+        <button id="newCharBtn" data-i18n="newCharacter" style="width:100%; margin-bottom:8px;">+ 新規作成</button>
         <div id="charList"></div>
-        <button id="newCharBtn" data-i18n="newCharacter" style="width:100%; margin-top:8px;">+ 新規作成</button>
       </div>
       <div id="main">
         <div id="log"></div>
@@ -135,6 +142,25 @@
         ・対話モデル: sarashina2.2-1b-instruct-v0.1 by SB Intuitions (MIT License)<br />
         ・画像生成モデル: Animagine XL 4.0 by cagliostrolab (CreativeML Open RAIL++-M License)<br />
         &nbsp;&nbsp;違法行為、未成年者の搾取、なりすまし、誹謗中傷、差別・扇動目的の利用は禁止されています。
+      </div>
+    </div>
+  </div>
+
+  <div id="newCharModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3 data-i18n="newCharacter">+ 新規作成</h3>
+      <label><span data-i18n="charNamePrompt">キャラクター名</span>
+        <input id="newCharName" type="text" />
+      </label>
+      <label><span data-i18n="systemPromptPrompt">性格・設定(システムプロンプト)</span>
+        <textarea id="newCharSystemPrompt" rows="3"></textarea>
+      </label>
+      <label><span data-i18n="appearancePrompt">見た目の特徴(英語タグ推奨)</span>
+        <input id="newCharAppearance" type="text" />
+      </label>
+      <div class="modal-actions">
+        <button id="newCharCancelBtn" data-i18n="cancel">キャンセル</button>
+        <button id="newCharCreateBtn" data-i18n="create">作成</button>
       </div>
     </div>
   </div>

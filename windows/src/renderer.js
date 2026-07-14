@@ -35,6 +35,8 @@ const translations = {
     charNamePrompt: "キャラクター名",
     systemPromptPrompt: "キャラ設定(口調・性格など)",
     appearancePrompt: "見た目の特徴(英語タグ推奨)",
+    cancel: "キャンセル",
+    create: "作成",
     errorPrefix: "[エラー]",
     readLabel: "既読",
   },
@@ -74,6 +76,8 @@ const translations = {
     charNamePrompt: "Character name",
     systemPromptPrompt: "Character persona (tone, personality, etc.)",
     appearancePrompt: "Appearance tags (English recommended)",
+    cancel: "Cancel",
+    create: "Create",
     errorPrefix: "[Error]",
     readLabel: "Read",
   },
@@ -251,11 +255,32 @@ window.koilm.onTimedReplyReady(({ sessionId, reply }) => {
   }
 });
 
-document.getElementById("newCharBtn").addEventListener("click", async () => {
-  const name = prompt(t("charNamePrompt"));
-  if (!name) return;
-  const systemPrompt = prompt(t("systemPromptPrompt")) || "";
-  const appearance = prompt(t("appearancePrompt")) || "";
+const newCharModal = document.getElementById("newCharModal");
+const newCharName = document.getElementById("newCharName");
+const newCharSystemPrompt = document.getElementById("newCharSystemPrompt");
+const newCharAppearance = document.getElementById("newCharAppearance");
+
+document.getElementById("newCharBtn").addEventListener("click", () => {
+  newCharName.value = "";
+  newCharSystemPrompt.value = "";
+  newCharAppearance.value = "";
+  newCharModal.classList.remove("hidden");
+  newCharName.focus();
+});
+
+document.getElementById("newCharCancelBtn").addEventListener("click", () => {
+  newCharModal.classList.add("hidden");
+});
+
+document.getElementById("newCharCreateBtn").addEventListener("click", async () => {
+  const name = newCharName.value.trim();
+  if (!name) {
+    newCharName.focus();
+    return;
+  }
+  const systemPrompt = newCharSystemPrompt.value.trim();
+  const appearance = newCharAppearance.value.trim();
+  newCharModal.classList.add("hidden");
   const { character } = await window.koilm.createCharacter(name, systemPrompt, appearance);
   characters.push(character);
   renderCharacterList();
